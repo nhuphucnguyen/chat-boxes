@@ -163,6 +163,29 @@
             background: #4CAF50;
             color: white;
         }
+
+        .context-menu {
+            display: none;
+            position: fixed;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            z-index: 1000;
+        }
+
+        .context-menu.show {
+            display: block;
+        }
+
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .context-menu-item:hover {
+            background: #f0f0f0;
+        }
     </style>
 </head>
 <body>
@@ -181,6 +204,11 @@
                 <button class="cancel" id="cancelButton">Cancel</button>
             </div>
         </div>
+    </div>
+
+    <!-- Add context menu -->
+    <div class="context-menu" id="tabContextMenu">
+        <div class="context-menu-item" id="deleteTabOption">Delete Tab</div>
     </div>
 
     <script src="renderer.js"></script>

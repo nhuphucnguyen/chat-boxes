@@ -14,6 +14,21 @@ class TabManager {
         this.activeTabId = null;
         this.sidebar = document.getElementById('sidebar');
         this.content = document.getElementById('content');
+        this.contextMenu = document.getElementById('tabContextMenu');
+        this.deleteTabOption = document.getElementById('deleteTabOption');
+        this.setupContextMenu();
+    }
+
+    setupContextMenu() {
+        // Close context menu when clicking outside
+        document.addEventListener('click', () => {
+            this.contextMenu.classList.remove('show');
+        });
+        
+        // Prevent context menu from closing when clicking inside it
+        this.contextMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
     }
 
     createTab(url) {
@@ -30,6 +45,24 @@ class TabManager {
         tabIcon.className = 'tab-icon';
         tabIcon.innerHTML = `<img src="${icon}" alt="Tab Icon">`;
         tabIcon.onclick = () => this.activateTab(id);
+        
+        // Update context menu handling
+        tabIcon.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Position the context menu at cursor
+            this.contextMenu.style.left = `${e.pageX}px`;
+            this.contextMenu.style.top = `${e.pageY}px`;
+            this.contextMenu.classList.add('show');
+            
+            // Update delete handler for this specific tab
+            this.deleteTabOption.onclick = () => {
+                this.removeTab(id);
+                this.contextMenu.classList.remove('show');
+            };
+        });
+
         this.sidebar.appendChild(tabIcon);
 
         // Create webview container with unique partition
@@ -70,6 +103,27 @@ class TabManager {
         newTab.tabIcon.classList.add('active');
         newTab.container.classList.add('active');
         this.activeTabId = id;
+    }
+
+    removeTab(id) {
+        const tab = this.tabs.get(id);
+        if (tab) {
+            // Remove DOM elements
+            tab.tabIcon.remove();
+            tab.container.remove();
+            
+            // Remove from tabs Map
+            this.tabs.delete(id);
+
+            // If this was the active tab, activate another one if available
+            if (this.activeTabId === id) {
+                this.activeTabId = null;
+                const nextTab = this.tabs.keys().next().value;
+                if (nextTab) {
+                    this.activateTab(nextTab);
+                }
+            }
+        }
     }
 }
 
@@ -115,3 +169,9 @@ function showUrlModal() {
 
 const newInstanceIcon = document.getElementById('new-instance-icon');
 newInstanceIcon.onclick = showUrlModal;
+
+// Add click handler to hide context menu when clicking anywhere else
+document.addEventListener('click', () => {
+    const contextMenu = document.getElementById('tabContextMenu');
+    contextMenu.classList.remove('show');
+});
