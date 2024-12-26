@@ -17,6 +17,7 @@ class TabManager {
         this.contextMenu = document.getElementById('tabContextMenu');
         this.deleteTabOption = document.getElementById('deleteTabOption');
         this.setupContextMenu();
+        window.electron.onLoadTabs((tabs) => this.loadTabs(tabs));
     }
 
     setupContextMenu() {
@@ -31,14 +32,19 @@ class TabManager {
         });
     }
 
-    createTab(url) {
+    loadTabs(tabs) {
+        tabs.forEach(tab => this.createTab(tab.url, tab.id, tab.icon));
+    }
+
+    createTab(url, id = generateUUID(), icon = '') {
         console.log('Creating tab with URL:', url);
-        const id = generateUUID();
         
-        // Find matching app for the URL to get its icon
-        const apps = window.electron.getApps();
-        const app = apps.find(app => app.url === url);
-        const icon = app ? app.icon : '';
+        // Find matching app for the URL to get its icon if not provided
+        if (!icon) {
+            const apps = window.electron.getApps();
+            const app = apps.find(app => app.url === url);
+            icon = app ? app.icon : '';
+        }
 
         // Create tab icon
         const tabIcon = document.createElement('div');
@@ -65,22 +71,23 @@ class TabManager {
 
         this.sidebar.appendChild(tabIcon);
 
-        // Create webview container with unique partition
+        // Create webview container with partition
         const container = document.createElement('div');
         container.className = 'webview-container';
-        const webview = this.createWebView(url);
+        // Create partition name if it doesn't exist
+        const partition = `persist:tab_${id}`;
+        const webview = this.createWebView(url, partition);
         container.appendChild(webview);
         this.content.appendChild(container);
 
         this.tabs.set(id, { tabIcon, container, webview });
         this.activateTab(id);
+        this.saveTabs();
     }
 
-    createWebView(url) {
+    createWebView(url, partition) {
         const webview = document.createElement('webview');
         webview.setAttribute('src', url);
-        // Use UUID for partition name
-        const partition = `persist:tab_${generateUUID()}`;
         webview.setAttribute('partition', partition);
         // Add Chrome user agent to bypass WhatsApp's Electron detection
         webview.setAttribute('useragent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.137 Safari/537.36');
@@ -105,6 +112,16 @@ class TabManager {
         this.activeTabId = id;
     }
 
+    saveTabs() {
+        const tabs = Array.from(this.tabs.values()).map(tab => ({
+            url: tab.webview.getAttribute('src'),
+            id: tab.webview.getAttribute('partition').split('_')[1],
+            icon: tab.tabIcon.querySelector('img').src,
+            partition: tab.webview.getAttribute('partition')  // Save the full partition name
+        }));
+        window.electron.saveTabs(tabs);
+    }
+
     removeTab(id) {
         const tab = this.tabs.get(id);
         if (tab) {
@@ -123,6 +140,7 @@ class TabManager {
                     this.activateTab(nextTab);
                 }
             }
+            this.saveTabs();
         }
     }
 }
