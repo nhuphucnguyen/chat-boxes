@@ -18,11 +18,12 @@ class TabManager {
         tabIcon.onclick = () => this.activateTab(id);
         this.sidebar.appendChild(tabIcon);
 
-        // Create webview container
+        // Create webview container with unique partition
         const container = document.createElement('div');
         container.className = 'webview-container';
         const webview = document.createElement('webview');
         webview.src = url;
+        webview.partition = `persist:tab-${id}`; // Add unique partition
         container.appendChild(webview);
         this.content.appendChild(container);
 
