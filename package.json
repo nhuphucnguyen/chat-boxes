@@ -32,12 +32,15 @@
         "AppImage",
         "deb"
       ],
+      "icon": "assets/icons/chatboxes.png",
       "category": "Network"
     },
     "mac": {
+      "icon": "assets/icons/chatboxes.icns",
       "category": "public.app-category.social-networking"
     },
     "win": {
+      "icon": "assets/icons/chatboxes.ico",
       "target": "nsis"
     }
   },
