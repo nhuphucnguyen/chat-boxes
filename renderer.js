@@ -20,10 +20,15 @@ class TabManager {
         console.log('Creating tab with URL:', url);
         const id = generateUUID();
         
+        // Find matching app for the URL to get its icon
+        const apps = window.electron.getApps();
+        const app = apps.find(app => app.url === url);
+        const icon = app ? app.icon : '';
+
         // Create tab icon
         const tabIcon = document.createElement('div');
         tabIcon.className = 'tab-icon';
-        tabIcon.innerHTML = this.tabs.size + 1;
+        tabIcon.innerHTML = `<img src="${icon}" alt="Tab Icon">`;
         tabIcon.onclick = () => this.activateTab(id);
         this.sidebar.appendChild(tabIcon);
 
@@ -110,6 +115,3 @@ function showUrlModal() {
 
 const newInstanceIcon = document.getElementById('new-instance-icon');
 newInstanceIcon.onclick = showUrlModal;
-
-// Test URL for development
-tabManager.createTab('https://www.google.com');

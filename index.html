@@ -13,7 +13,7 @@
             height: 100%;
         }
         .sidebar {
-            width: 60px;
+            width: 50px;
             background: #2c2c2c;
             display: flex;
             flex-direction: column;
@@ -22,19 +22,34 @@
             position: relative;
         }
         .tab-icon {
-            width: 40px;
-            height: 40px;
-            margin: 5px;
-            background: #3c3c3c;
-            border-radius: 8px;
+            width: 50px;  /* Match sidebar width */
+            height: 50px;  /* Make it square */
+            margin: 0;    /* Remove margins */
+            background: transparent;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            position: relative;
         }
+        
+        .tab-icon img {
+            width: 40px;   /* Smaller than the container */
+            height: 40px;
+            z-index: 1;
+        }
+
         .tab-icon.active {
-            background: #525252;
+            background: #3c3c3c;
+        }
+
+        .tab-icon.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: #ffffff;
         }
         .new-instance-icon {
             width: 40px;
