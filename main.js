@@ -9,11 +9,15 @@ function createWindow() {
         height: 800,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: true,
+            webviewTag: true,
+            preload: path.join(__dirname, 'preload.js')
         }
     });
 
     mainWindow.loadFile('index.html');
+    // For debugging
+    mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
@@ -31,14 +35,6 @@ app.on('activate', () => {
 });
 
 ipcMain.on('create-instance', (event, url) => {
-    const instance = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true
-        }
-    });
-    
-    instance.loadURL(url);
+    console.log('Received create-instance with URL:', url);
+    mainWindow.webContents.send('create-tab', url);
 });
