@@ -1,0 +1,26 @@
+.container {
+    padding: 20px;
+    text-align: center;
+}
+
+.app-launcher {
+    margin-top: 20px;
+}
+
+select, button {
+    padding: 8px;
+    margin: 5px;
+    font-size: 14px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
