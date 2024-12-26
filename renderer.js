@@ -1,3 +1,12 @@
+// Add UUID generation function at the top
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 class TabManager {
     constructor() {
         console.log('TabManager constructor called');
@@ -9,7 +18,7 @@ class TabManager {
 
     createTab(url) {
         console.log('Creating tab with URL:', url);
-        const id = Date.now().toString();
+        const id = generateUUID();
         
         // Create tab icon
         const tabIcon = document.createElement('div');
@@ -21,14 +30,27 @@ class TabManager {
         // Create webview container with unique partition
         const container = document.createElement('div');
         container.className = 'webview-container';
-        const webview = document.createElement('webview');
-        webview.src = url;
-        webview.partition = `persist:tab-${id}`; // Add unique partition
+        const webview = this.createWebView(url);
         container.appendChild(webview);
         this.content.appendChild(container);
 
         this.tabs.set(id, { tabIcon, container, webview });
         this.activateTab(id);
+    }
+
+    createWebView(url) {
+        const webview = document.createElement('webview');
+        webview.setAttribute('src', url);
+        // Use UUID for partition name
+        const partition = `persist:tab_${generateUUID()}`;
+        webview.setAttribute('partition', partition);
+        // Add Chrome user agent to bypass WhatsApp's Electron detection
+        webview.setAttribute('useragent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.137 Safari/537.36');
+        // Set other necessary attributes
+        webview.setAttribute('allowpopups', 'true');
+        webview.setAttribute('webpreferences', 'nodeIntegration=false, contextIsolation=true');
+        
+        return webview;
     }
 
     activateTab(id) {
