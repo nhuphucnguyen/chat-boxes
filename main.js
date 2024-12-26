@@ -16,8 +16,11 @@ function createWindow() {
     });
 
     mainWindow.loadFile('index.html');
-    // For debugging
-    mainWindow.webContents.openDevTools();
+    
+    // Only open dev tools in development
+    if (process.env.NODE_ENV === 'development') {
+        mainWindow.webContents.openDevTools();
+    }
 }
 
 app.whenReady().then(createWindow);

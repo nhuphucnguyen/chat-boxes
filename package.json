@@ -1,16 +1,48 @@
 {
-  "name": "single-box",
+  "name": "chat-boxes",
   "version": "1.0.0",
+  "description": "All-in-one messaging app",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "electron-builder",
+    "build:linux": "electron-builder --linux",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "Multi-instance web app container",
+  "author": "Phuc Nguyen <phucnn.work@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/nhuphucnguyen/chat-boxes",
+  "build": {
+    "appId": "dev.phucngu.chatboxes",
+    "productName": "Chat Boxes",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist/*",
+      "!build/*",
+      "!**/*.md"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Network"
+    },
+    "mac": {
+      "category": "public.app-category.social-networking"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  },
   "devDependencies": {
-    "electron": "^33.2.1"
+    "electron": "^28.0.0",
+    "electron-builder": "^24.13.3"
   }
 }
