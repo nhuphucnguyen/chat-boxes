@@ -64,8 +64,10 @@ class TabManager {
             
             // Update delete handler for this specific tab
             this.deleteTabOption.onclick = () => {
-                this.removeTab(id);
                 this.contextMenu.classList.remove('show');
+                if (confirm('Are you sure you want to remove this tab?')) {
+                    this.removeTab(id);
+                }
             };
         });
 
