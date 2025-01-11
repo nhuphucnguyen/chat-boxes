@@ -16,6 +16,7 @@ class TabManager {
         this.content = document.getElementById('content');
         this.contextMenu = document.getElementById('tabContextMenu');
         this.deleteTabOption = document.getElementById('deleteTabOption');
+        this.reloadTabOption = document.getElementById('reloadTabOption');
         this.setupContextMenu();
         window.electron.onLoadTabs((tabs) => this.loadTabs(tabs));
     }
@@ -61,6 +62,12 @@ class TabManager {
             this.contextMenu.style.left = `${e.pageX}px`;
             this.contextMenu.style.top = `${e.pageY}px`;
             this.contextMenu.classList.add('show');
+            
+            // Update reload handler for this specific tab
+            this.reloadTabOption.onclick = () => {
+                this.contextMenu.classList.remove('show');
+                this.reloadTab(id);
+            };
             
             // Update delete handler for this specific tab
             this.deleteTabOption.onclick = () => {
@@ -143,6 +150,13 @@ class TabManager {
                 }
             }
             this.saveTabs();
+        }
+    }
+
+    reloadTab(id) {
+        const tab = this.tabs.get(id);
+        if (tab) {
+            tab.webview.reload();
         }
     }
 }
