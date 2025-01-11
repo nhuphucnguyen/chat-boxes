@@ -99,7 +99,7 @@ class TabManager {
         webview.setAttribute('src', url);
         webview.setAttribute('partition', partition);
         // Add Chrome user agent to bypass WhatsApp's Electron detection
-        webview.setAttribute('useragent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.137 Safari/537.36');
+        webview.setAttribute('useragent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.170 Safari/537.36');
         // Set other necessary attributes
         webview.setAttribute('allowpopups', 'true');
         webview.setAttribute('webpreferences', 'nodeIntegration=false, contextIsolation=true');
