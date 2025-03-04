@@ -33,7 +33,10 @@
         "deb"
       ],
       "icon": "assets/icons/chatboxes.png",
-      "category": "Network"
+      "category": "Utility",
+      "executableName": "chat-boxes",
+      "asarUnpack": ["**/*.node"],
+      "executableArgs": ["--no-sandbox"]
     },
     "mac": {
       "icon": "assets/icons/chatboxes.icns",
