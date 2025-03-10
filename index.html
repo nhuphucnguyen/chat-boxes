@@ -25,9 +25,37 @@
     <!-- Add context menu -->
     <div class="context-menu" id="tabContextMenu">
         <div class="context-menu-item" id="reloadTabOption">Reload</div>
+        <div class="context-menu-item" id="setPinOption">Set PIN</div>
+        <div class="context-menu-item" id="removePinOption">Remove PIN</div>
         <div class="context-menu-item" id="deleteTabOption">Remove</div>
     </div>
-
+    
+    <!-- PIN Setup Modal -->
+    <div class="modal" id="pinSetupModal">
+        <div class="modal-content pin-modal">
+            <h3>Set PIN Protection</h3>
+            <p>Enter a 6-digit PIN to protect this tab</p>
+            <input type="password" maxlength="6" pattern="[0-9]{6}" id="pinSetupInput" placeholder="Enter 6-digit PIN" class="pin-input">
+            <div class="modal-buttons">
+                <button class="cancel" id="cancelPinSetupButton">Cancel</button>
+                <button class="submit" id="savePinButton">Save PIN</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PIN Entry Modal -->
+    <div class="modal" id="pinEntryModal">
+        <div class="modal-content pin-modal">
+            <h3>Enter PIN</h3>
+            <p>This tab is PIN protected</p>
+            <input type="password" maxlength="6" pattern="[0-9]{6}" id="pinEntryInput" placeholder="Enter 6-digit PIN" class="pin-input">
+            <div class="modal-buttons">
+                <button class="cancel" id="cancelPinEntryButton">Cancel</button>
+                <button class="submit" id="checkPinButton">Unlock</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="renderer.js"></script>
 </body>
 </html>
