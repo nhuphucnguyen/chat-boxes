@@ -278,7 +278,7 @@ webview {
     background: var(--light-bg);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    z-index: 1000;
+    z-index: 10;
     min-width: 180px;
     padding: 8px 0;
     overflow: hidden;
@@ -345,4 +345,20 @@ webview {
 /* Hide Remove PIN option by default */
 #removePinOption {
     display: none;
+}
+
+/* Add a new style for the click overlay */
+.click-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    display: none;
+    cursor: default;
+}
+
+.click-overlay.active {
+    display: block;
 }

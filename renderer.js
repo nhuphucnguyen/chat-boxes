@@ -34,6 +34,7 @@ class TabManager {
         this.reloadTabOption = document.getElementById('reloadTabOption');
         this.setPinOption = document.getElementById('setPinOption');
         this.removePinOption = document.getElementById('removePinOption');
+        this.clickOverlay = null;
         
         // PIN setup modal elements
         this.pinSetupModal = document.getElementById('pinSetupModal');
@@ -56,13 +57,35 @@ class TabManager {
     setupContextMenu() {
         // Close context menu when clicking outside
         document.addEventListener('click', () => {
-            this.contextMenu.classList.remove('show');
+            this.hideContextMenu();
         });
         
         // Prevent context menu from closing when clicking inside it
         this.contextMenu.addEventListener('click', (e) => {
             e.stopPropagation();
         });
+        
+        // Create overlay element once
+        this.clickOverlay = document.createElement('div');
+        this.clickOverlay.className = 'click-overlay';
+        this.clickOverlay.addEventListener('click', () => {
+            this.hideContextMenu();
+        });
+        this.content.appendChild(this.clickOverlay);
+    }
+    
+    // New method to hide context menu and clean up overlay
+    hideContextMenu() {
+        this.contextMenu.classList.remove('show');
+        this.clickOverlay.classList.remove('active');
+    }
+    
+    // New method to show context menu and activate overlay
+    showContextMenu(x, y) {
+        this.contextMenu.style.left = `${x}px`;
+        this.contextMenu.style.top = `${y}px`;
+        this.contextMenu.classList.add('show');
+        this.clickOverlay.classList.add('active');
     }
     
     setupPinModals() {
@@ -158,10 +181,6 @@ class TabManager {
             e.preventDefault();
             e.stopPropagation();
             
-            // Position the context menu at cursor
-            this.contextMenu.style.left = `${e.pageX}px`;
-            this.contextMenu.style.top = `${e.pageY}px`;
-            
             // Show/hide PIN options based on whether the tab has a PIN
             const tab = this.tabs.get(id);
             if (tab && tab.pinHash) {
@@ -172,29 +191,30 @@ class TabManager {
                 this.removePinOption.style.display = 'none';
             }
             
-            this.contextMenu.classList.add('show');
+            // Use the new method to show context menu
+            this.showContextMenu(e.pageX, e.pageY);
             
             // Update reload handler for this specific tab
             this.reloadTabOption.onclick = () => {
-                this.contextMenu.classList.remove('show');
+                this.hideContextMenu();
                 this.reloadTab(id);
             };
             
             // Update set PIN handler for this specific tab
             this.setPinOption.onclick = () => {
-                this.contextMenu.classList.remove('show');
+                this.hideContextMenu();
                 this.showPinSetupModal(id);
             };
             
             // Update remove PIN handler for this specific tab
             this.removePinOption.onclick = () => {
-                this.contextMenu.classList.remove('show');
+                this.hideContextMenu();
                 this.showPinVerificationForRemoval(id);
             };
             
             // Update delete handler for this specific tab
             this.deleteTabOption.onclick = () => {
-                this.contextMenu.classList.remove('show');
+                this.hideContextMenu();
                 if (confirm('Are you sure you want to remove this tab?')) {
                     this.removeTab(id);
                 }
@@ -227,6 +247,19 @@ class TabManager {
         // Set other necessary attributes
         webview.setAttribute('allowpopups', 'true');
         webview.setAttribute('webpreferences', 'nodeIntegration=false, contextIsolation=true');
+        
+        // Add event listener to hide the context menu when the webview is clicked
+        webview.addEventListener('dom-ready', () => {
+            // Once the DOM is ready we can subscribe to click events
+            webview.addEventListener('click', () => {
+                this.contextMenu.classList.remove('show');
+            });
+            
+            // Also listen for ipc-message as a way to detect interaction with the webview
+            webview.addEventListener('ipc-message', () => {
+                this.contextMenu.classList.remove('show');
+            });
+        });
         
         return webview;
     }
@@ -419,8 +452,9 @@ newInstanceIcon.onclick = showUrlModal;
 
 // Add click handler to hide context menu when clicking anywhere else
 document.addEventListener('click', () => {
-    const contextMenu = document.getElementById('tabContextMenu');
-    contextMenu.classList.remove('show');
+    if (tabManager) {
+        tabManager.hideContextMenu();
+    }
 });
 
 // Add keyboard event listeners for PIN input fields
