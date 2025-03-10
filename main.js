@@ -8,9 +8,23 @@ const dataDir = path.join(os.homedir(), '.chat-boxes');
 const dataFile = path.join(dataDir, 'tabs.json');
 
 function createWindow() {
+    // Set the appropriate icon based on the platform
+    let iconPath;
+    if (process.platform === 'darwin') {
+        // macOS uses .icns format
+        iconPath = path.join(__dirname, 'assets', 'icons', 'chatboxes.icns');
+    } else if (process.platform === 'win32') {
+        // Windows uses .ico format
+        iconPath = path.join(__dirname, 'assets', 'icons', 'chatboxes.ico');
+    } else {
+        // Linux and other platforms use .png format
+        iconPath = path.join(__dirname, 'assets', 'icons', 'chatboxes.png');
+    }
+
     mainWindow = new BrowserWindow({
         width: 1200,
         height: 800,
+        icon: iconPath,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: true,
