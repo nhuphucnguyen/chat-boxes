@@ -1,6 +1,6 @@
 {
   "name": "chat-boxes",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "All-in-one messaging app",
   "main": "main.js",
   "scripts": {
@@ -35,8 +35,12 @@
       "icon": "assets/icons/chatboxes.png",
       "category": "Utility",
       "executableName": "chat-boxes",
-      "asarUnpack": ["**/*.node"],
-      "executableArgs": ["--no-sandbox"]
+      "asarUnpack": [
+        "**/*.node"
+      ],
+      "executableArgs": [
+        "--no-sandbox"
+      ]
     },
     "mac": {
       "icon": "assets/icons/chatboxes.icns",
@@ -48,7 +52,7 @@
     }
   },
   "devDependencies": {
-    "electron": "^35.0.0",
-    "electron-builder": "^25.1.8"
+    "electron": "^36.3.1",
+    "electron-builder": "^26.0.12"
   }
 }
