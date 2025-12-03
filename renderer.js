@@ -1,6 +1,6 @@
 // Add UUID generation function at the top
 function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         const r = Math.random() * 16 | 0;
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
@@ -35,36 +35,36 @@ class TabManager {
         this.setPinOption = document.getElementById('setPinOption');
         this.removePinOption = document.getElementById('removePinOption');
         this.clickOverlay = null;
-        
+
         // PIN setup modal elements
         this.pinSetupModal = document.getElementById('pinSetupModal');
         this.pinSetupInput = document.getElementById('pinSetupInput');
         this.cancelPinSetupButton = document.getElementById('cancelPinSetupButton');
         this.savePinButton = document.getElementById('savePinButton');
-        
+
         // PIN entry modal elements
         this.pinEntryModal = document.getElementById('pinEntryModal');
         this.pinEntryInput = document.getElementById('pinEntryInput');
         this.cancelPinEntryButton = document.getElementById('cancelPinEntryButton');
         this.checkPinButton = document.getElementById('checkPinButton');
-        
+
         this.setupContextMenu();
         this.setupPinModals();
-        
+
         window.electron.onLoadTabs((tabs) => this.loadTabs(tabs));
     }
-    
+
     setupContextMenu() {
         // Close context menu when clicking outside
         document.addEventListener('click', () => {
             this.hideContextMenu();
         });
-        
+
         // Prevent context menu from closing when clicking inside it
         this.contextMenu.addEventListener('click', (e) => {
             e.stopPropagation();
         });
-        
+
         // Create overlay element once
         this.clickOverlay = document.createElement('div');
         this.clickOverlay.className = 'click-overlay';
@@ -73,13 +73,13 @@ class TabManager {
         });
         this.content.appendChild(this.clickOverlay);
     }
-    
+
     // New method to hide context menu and clean up overlay
     hideContextMenu() {
         this.contextMenu.classList.remove('show');
         this.clickOverlay.classList.remove('active');
     }
-    
+
     // New method to show context menu and activate overlay
     showContextMenu(x, y) {
         this.contextMenu.style.left = `${x}px`;
@@ -87,14 +87,14 @@ class TabManager {
         this.contextMenu.classList.add('show');
         this.clickOverlay.classList.add('active');
     }
-    
+
     setupPinModals() {
         // PIN setup modal handlers
         this.cancelPinSetupButton.onclick = () => {
             this.pinSetupModal.classList.remove('show');
             this.pinSetupInput.value = '';
         };
-        
+
         this.savePinButton.onclick = () => {
             const pin = this.pinSetupInput.value;
             if (pin.length === 6 && /^\d{6}$/.test(pin)) {
@@ -105,7 +105,7 @@ class TabManager {
                 alert('Please enter a 6-digit PIN');
             }
         };
-        
+
         // PIN entry modal handlers
         this.cancelPinEntryButton.onclick = () => {
             this.pinEntryModal.classList.remove('show');
@@ -113,32 +113,32 @@ class TabManager {
             this.pendingTabActivation = null;
             this.pendingPinRemoval = null;
         };
-        
+
         this.checkPinButton.onclick = () => {
             const pin = this.pinEntryInput.value;
-            
+
             // Check if this is for PIN removal or tab activation
             if (this.pendingPinRemoval) {
                 const tabId = this.pendingPinRemoval;
-                
+
                 if (this.verifyPinForTab(tabId, pin)) {
                     // PIN is correct, proceed with removal
                     this.pinEntryModal.classList.remove('show');
                     this.pinEntryInput.value = '';
-                    
+
                     // Actually remove the PIN
                     this.performPinRemoval(tabId);
                 } else {
                     alert('Incorrect PIN');
                     this.pinEntryInput.value = '';
                 }
-                
+
                 // Reset the pending removal
                 this.pendingPinRemoval = null;
-            } 
+            }
             else if (this.pendingTabActivation) {
                 const tabId = this.pendingTabActivation;
-                
+
                 if (this.verifyPinForTab(tabId, pin)) {
                     this.pinEntryModal.classList.remove('show');
                     this.pinEntryInput.value = '';
@@ -150,23 +150,34 @@ class TabManager {
             }
         };
     }
-    
+
     loadTabs(tabs) {
         tabs.forEach(tab => {
             this.createTab(tab.url, tab.id, tab.icon, tab.pinHash);
         });
     }
-    
+
     createTab(url, id = generateUUID(), icon = '', pinHash = null) {
         console.log('Creating tab with URL:', url);
-        
+
         // Find matching app for the URL to get its icon if not provided
         if (!icon) {
             const apps = window.electron.getApps();
             const app = apps.find(app => app.url === url);
-            icon = app ? app.icon : '';
+            if (app) {
+                icon = app.icon;
+            } else {
+                // Try to get favicon from Google's service
+                try {
+                    const hostname = new URL(url).hostname;
+                    icon = `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
+                } catch (e) {
+                    // Fallback icon if URL parsing fails
+                    icon = 'assets/icons/chatboxes.png';
+                }
+            }
         }
-        
+
         // Create tab icon
         const tabIcon = document.createElement('div');
         tabIcon.className = 'tab-icon';
@@ -175,12 +186,12 @@ class TabManager {
         }
         tabIcon.innerHTML = `<img src="${icon}" alt="Tab Icon">`;
         tabIcon.onclick = () => this.activateTab(id);
-        
+
         // Update context menu handling
         tabIcon.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            
+
             // Show/hide PIN options based on whether the tab has a PIN
             const tab = this.tabs.get(id);
             if (tab && tab.pinHash) {
@@ -190,28 +201,28 @@ class TabManager {
                 this.setPinOption.style.display = 'block';
                 this.removePinOption.style.display = 'none';
             }
-            
+
             // Use the new method to show context menu
             this.showContextMenu(e.pageX, e.pageY);
-            
+
             // Update reload handler for this specific tab
             this.reloadTabOption.onclick = () => {
                 this.hideContextMenu();
                 this.reloadTab(id);
             };
-            
+
             // Update set PIN handler for this specific tab
             this.setPinOption.onclick = () => {
                 this.hideContextMenu();
                 this.showPinSetupModal(id);
             };
-            
+
             // Update remove PIN handler for this specific tab
             this.removePinOption.onclick = () => {
                 this.hideContextMenu();
                 this.showPinVerificationForRemoval(id);
             };
-            
+
             // Update delete handler for this specific tab
             this.deleteTabOption.onclick = () => {
                 this.hideContextMenu();
@@ -220,24 +231,24 @@ class TabManager {
                 }
             };
         });
-        
+
         this.sidebar.appendChild(tabIcon);
-        
+
         // Create webview container with partition
         const container = document.createElement('div');
         container.className = 'webview-container';
-        
+
         // Create partition name if it doesn't exist
         const partition = `persist:tab_${id}`;
         const webview = this.createWebView(url, partition);
         container.appendChild(webview);
         this.content.appendChild(container);
-        
+
         this.tabs.set(id, { tabIcon, container, webview, pinHash });
         this.activateTab(id);
         this.saveTabs();
     }
-    
+
     createWebView(url, partition) {
         const webview = document.createElement('webview');
         webview.setAttribute('src', url);
@@ -247,26 +258,26 @@ class TabManager {
         // Set other necessary attributes
         webview.setAttribute('allowpopups', 'true');
         webview.setAttribute('webpreferences', 'nodeIntegration=false, contextIsolation=true');
-        
+
         // Add event listener to hide the context menu when the webview is clicked
         webview.addEventListener('dom-ready', () => {
             // Once the DOM is ready we can subscribe to click events
             webview.addEventListener('click', () => {
                 this.contextMenu.classList.remove('show');
             });
-            
+
             // Also listen for ipc-message as a way to detect interaction with the webview
             webview.addEventListener('ipc-message', () => {
                 this.contextMenu.classList.remove('show');
             });
         });
-        
+
         return webview;
     }
-    
+
     activateTab(id) {
         console.log('Activating tab with ID:', id);
-        
+
         // Check if tab is PIN protected
         const tab = this.tabs.get(id);
         if (tab && tab.pinHash) {
@@ -275,11 +286,11 @@ class TabManager {
             this.showPinEntryModal();
             return;
         }
-        
+
         // If not PIN protected, activate the tab directly
         this.completeTabActivation(id);
     }
-    
+
     completeTabActivation(id) {
         // Deactivate current active tab
         if (this.activeTabId) {
@@ -287,24 +298,24 @@ class TabManager {
             oldTab.tabIcon.classList.remove('active');
             oldTab.container.classList.remove('active');
         }
-        
+
         // Activate new tab
         const newTab = this.tabs.get(id);
         newTab.tabIcon.classList.add('active');
         newTab.container.classList.add('active');
         this.activeTabId = id;
     }
-    
+
     showPinSetupModal() {
         this.pinSetupModal.classList.add('show');
         this.pinSetupInput.focus();
     }
-    
+
     showPinEntryModal() {
         // Update modal title and message based on the operation
         const modalTitle = document.querySelector('#pinEntryModal h3');
         const modalMessage = document.querySelector('#pinEntryModal p');
-        
+
         if (this.pendingPinRemoval) {
             modalTitle.textContent = 'Verify PIN';
             modalMessage.textContent = 'Enter the current PIN to remove protection';
@@ -312,11 +323,11 @@ class TabManager {
             modalTitle.textContent = 'Enter PIN';
             modalMessage.textContent = 'This tab is PIN protected';
         }
-        
+
         this.pinEntryModal.classList.add('show');
         this.pinEntryInput.focus();
     }
-    
+
     setPinForTab(id, pin) {
         const tab = this.tabs.get(id);
         if (tab) {
@@ -326,22 +337,22 @@ class TabManager {
             this.saveTabs();
         }
     }
-    
+
     showPinVerificationForRemoval(id) {
         // Store the ID of the tab whose PIN we want to remove
         this.pendingPinRemoval = id;
-        
+
         // Update the modal title and message to indicate PIN removal
         const modalTitle = document.querySelector('#pinEntryModal h3');
         const modalMessage = document.querySelector('#pinEntryModal p');
-        
+
         modalTitle.textContent = 'Verify PIN';
         modalMessage.textContent = 'Enter the current PIN to remove protection';
-        
+
         // Show the modal
         this.showPinEntryModal();
     }
-    
+
     // New method to actually perform PIN removal after verification
     performPinRemoval(id) {
         const tab = this.tabs.get(id);
@@ -351,12 +362,12 @@ class TabManager {
             this.saveTabs();
         }
     }
-    
+
     // Remove the direct PIN removal function since we now use verification
     removePinFromTab(id) {
         this.showPinVerificationForRemoval(id);
     }
-    
+
     verifyPinForTab(id, pin) {
         const tab = this.tabs.get(id);
         if (tab && tab.pinHash) {
@@ -365,7 +376,7 @@ class TabManager {
         }
         return false;
     }
-    
+
     saveTabs() {
         const tabs = Array.from(this.tabs.entries()).map(([id, tab]) => ({
             url: tab.webview.getAttribute('src'),
@@ -376,17 +387,17 @@ class TabManager {
         }));
         window.electron.saveTabs(tabs);
     }
-    
+
     removeTab(id) {
         const tab = this.tabs.get(id);
         if (tab) {
             // Remove DOM elements
             tab.tabIcon.remove();
             tab.container.remove();
-            
+
             // Remove from tabs Map
             this.tabs.delete(id);
-            
+
             // If this was the active tab, activate another one if available
             if (this.activeTabId === id) {
                 this.activeTabId = null;
@@ -398,7 +409,7 @@ class TabManager {
             this.saveTabs();
         }
     }
-    
+
     reloadTab(id) {
         const tab = this.tabs.get(id);
         if (tab) {
@@ -418,13 +429,17 @@ function showUrlModal() {
     const modal = document.getElementById('urlModal');
     const appsGrid = document.getElementById('appsGrid');
     const cancelButton = document.getElementById('cancelButton');
-    
-    // Clear existing apps
+
+    const customUrlInput = document.getElementById('customUrlInput');
+    const addCustomUrlButton = document.getElementById('addCustomUrlButton');
+
+    // Clear existing apps and input
     appsGrid.innerHTML = '';
-    
+    customUrlInput.value = '';
+
     // Load apps from the exposed API
     const apps = window.electron.getApps();
-    
+
     // Create app items
     apps.forEach(app => {
         const appItem = document.createElement('div');
@@ -439,9 +454,30 @@ function showUrlModal() {
         };
         appsGrid.appendChild(appItem);
     });
-    
+
+    // Handle custom URL addition
+    const handleAddCustomUrl = () => {
+        let url = customUrlInput.value.trim();
+        if (url) {
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+            }
+            window.electron.createInstance(url);
+            modal.classList.remove('show');
+        }
+    };
+
+    addCustomUrlButton.onclick = handleAddCustomUrl;
+
+    customUrlInput.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+            handleAddCustomUrl();
+        }
+    };
+
     modal.classList.add('show');
-    
+    customUrlInput.focus();
+
     cancelButton.onclick = () => {
         modal.classList.remove('show');
     };
