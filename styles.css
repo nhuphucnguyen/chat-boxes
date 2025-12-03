@@ -13,7 +13,8 @@
     --transition: all 0.2s ease-in-out;
 }
 
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -39,9 +40,12 @@ body, html {
 }
 
 .tab-icon {
-    width: 50px;  /* Match sidebar width */
-    height: 50px;  /* Make it square */
-    margin: 0;    /* Remove margins */
+    width: 50px;
+    /* Match sidebar width */
+    height: 50px;
+    /* Make it square */
+    margin: 0;
+    /* Remove margins */
     background: transparent;
     cursor: pointer;
     display: flex;
@@ -52,7 +56,8 @@ body, html {
 }
 
 .tab-icon img {
-    width: 40px;   /* Smaller than the container */
+    width: 40px;
+    /* Smaller than the container */
     height: 40px;
     z-index: 1;
     transition: var(--transition);
@@ -77,7 +82,8 @@ body, html {
 
 /* Add lock icon indicator for PIN-protected tabs */
 .tab-icon.pin-protected::after {
-    content: "\1F512"; /* Unicode lock symbol instead of emoji */
+    content: "\1F512";
+    /* Unicode lock symbol instead of emoji */
     position: absolute;
     bottom: 2px;
     right: 2px;
@@ -368,25 +374,29 @@ webview {
 
 /* Replace emoji with unicode symbols for better cross-platform rendering */
 #reloadTabOption::before {
-    content: "\2B6E";  /* Unicode refresh symbol */
+    content: "\21BB";
+    /* Unicode refresh symbol */
     margin-right: 10px;
     font-size: 16px;
 }
 
 #setPinOption::before {
-    content: "\1F512";  /* Unicode lock symbol */
+    content: "\1F512";
+    /* Unicode lock symbol */
     margin-right: 10px;
     font-size: 16px;
 }
 
 #removePinOption::before {
-    content: "\1F513";  /* Unicode unlock symbol */
+    content: "\1F513";
+    /* Unicode unlock symbol */
     margin-right: 10px;
     font-size: 16px;
 }
 
 #deleteTabOption::before {
-    content: "\2715";  /* Unicode X symbol */
+    content: "\2715";
+    /* Unicode X symbol */
     margin-right: 10px;
     font-size: 16px;
 }
