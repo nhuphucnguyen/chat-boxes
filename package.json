@@ -1,6 +1,6 @@
 {
   "name": "chat-boxes",
-  "version": "1.2.2",
+  "version": "26.2.1",
   "description": "All-in-one messaging app",
   "main": "main.js",
   "scripts": {
@@ -52,7 +52,7 @@
     }
   },
   "devDependencies": {
-    "electron": "^38.0.0",
-    "electron-builder": "^26.0.12"
+    "electron": "^40.1.0",
+    "electron-builder": "^26.7.0"
   }
 }
